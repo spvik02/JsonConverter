@@ -18,7 +18,7 @@ class JsonConverterTest {
     class FromJson{
         String jsonList = "[7,6,5]";
         String jsonSimpleObjectAnimal = "{\"name\":\"Bashi\",\"age\":4}";
-        String jsonUser = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"pets\":[{\"collarСolor\":\"green\",\"name\":\"Caiery\",\"age\":3},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Arairie\",\"age\":9}],\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"collarСolor\":\"green\",\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
+        String jsonUser = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"pets\":[{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Arairie\",\"age\":9}],\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
 
         @Test
         void checkFromJsonShouldReturnByteValue16() {
