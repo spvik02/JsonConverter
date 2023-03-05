@@ -1,24 +1,30 @@
+import com.google.gson.Gson;
 import jsonconverter.GenericListType;
 import jsonconverter.JsonConverter;
 import model.Animal;
 import model.User;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonConverterTest {
     JsonConverter jsonConverter = new JsonConverter();
+    String jsonUser = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"pets\":[{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Arairie\",\"age\":9}],\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
 
     @Nested
     class FromJson{
         String jsonList = "[7,6,5]";
         String jsonSimpleObjectAnimal = "{\"name\":\"Bashi\",\"age\":4}";
-        String jsonUser = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"pets\":[{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Arairie\",\"age\":9}],\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"collarColor\":\"green\",\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
 
         @Test
         void checkFromJsonShouldReturnByteValue16() {
@@ -381,7 +387,8 @@ class JsonConverterTest {
             Animal animal3 = new Animal("Caiery", 3);
             List<Animal> pets = List.of(animal3, animal2, animal1);
             Animal[] animals = {animal1, animal2, animal3};
-            User expectedUser = new User("Dastin", 29, 2000, pets, animals, true, true, 'a', 'C');
+            User expectedUser = new User("Dastin", 29, 2000, pets, animals,
+                    true, true, 'a', 'C');
             try {
                 var actualUser = jsonConverter.fromJson(jsonUser, User.class);
                 assertThat(actualUser).isEqualTo(expectedUser);
@@ -400,9 +407,155 @@ class JsonConverterTest {
         }
     }
 
+    @Nested
+    class ToJson {
+        private static Stream<Number> provideIntegerPrimitiveNumbers() {
+            return Stream.of(
+                    (byte) 16, (short) 16, 16, 16L
+            );
+        }
+        private static Stream<Number> provideFractionalPrimitiveNumbers() {
+            return Stream.of(
+                    16.0, 16.0f
+            );
+        }
 
-    @Test
-    void toJson() {
+        @ParameterizedTest
+        @MethodSource("provideIntegerPrimitiveNumbers")
+        void checkToJsonShouldReturnJsonForIntegerNumber(Number num) {
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(num);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("16");
+        }
+        @ParameterizedTest
+        @MethodSource("provideFractionalPrimitiveNumbers")
+        void checkToJsonShouldReturnJsonForFractionalNumber(Number num) {
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(num);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("16.0");
+        }
+
+        @ParameterizedTest
+        @CsvSource({"true,true", "false,false"})
+        void checkToJsonShouldReturnJsonForBoolean(boolean b, String expectedJson) {
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(b);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo(expectedJson);
+        }
+
+        @Test
+        void checkToJsonShouldReturnJsonForChar(){
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson('a');
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("\"a\"");
+        }
+        @Test
+        void checkToJsonShouldReturnJsonForString(){
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson("dinosaur");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("\"dinosaur\"");
+        }
+        @Test
+        void checkToJsonShouldReturnJsonForNull(){
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("null");
+        }
+
+        @Test
+        void checkToJsonShouldReturnJsonForIntegerArray(){
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(new Integer[]{1,2,3});
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("[1,2,3]");
+        }
+        @Test
+        void checkToJsonShouldReturnJsonForIntegerList(){
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(List.of(1,2,3));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("[1,2,3]");
+        }
+
+        @Test
+        void checkToJsonShouldReturnJsonForAnimal(){
+            Animal animal = new Animal("Bashi", 4);
+            String actualJson;
+            try {
+                actualJson = jsonConverter.toJson(animal);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertThat(actualJson).isEqualTo("{\"name\":\"Bashi\",\"age\":4}");
+        }
+
+        @Test
+        void checkFromJsonShouldReturnUserValue(){
+            String actualJson;
+            Animal animal1 = new Animal("Arairie", 9);
+            Animal animal2 = new Animal("Bashi", 4);
+            Animal animal3 = new Animal("Caiery", 3);
+            List<Animal> pets = List.of(animal3, animal2, animal1);
+            Animal[] animals = {animal1, animal2, animal3};
+            User user = new User("Dastin", 29, 2000, pets, animals,
+                    true, true, 'a', 'C');
+            try {
+                Gson gson = new Gson();
+                String expectedJson = gson.toJson(user);
+                actualJson = jsonConverter.toJson(user);
+                assertThat(actualJson).isEqualTo(expectedJson);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Test
+        void checkFromJsonShouldReturnJsonUserWithNullPets(){
+            String actualJson;
+            Animal animal1 = new Animal("Arairie", 9);
+            Animal animal2 = new Animal("Bashi", 4);
+            Animal animal3 = new Animal("Caiery", 3);
+            Animal[] animals = {animal1, animal2, animal3};
+            User user = new User("Dastin", 29, 2000, null, animals,
+                    true, true, 'a', 'C');
+            try {
+                Gson gson = new Gson();
+                String expectedJson = gson.toJson(user);
+                actualJson = jsonConverter.toJson(user);
+                assertThat(actualJson).isEqualTo(expectedJson);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
-
 }
