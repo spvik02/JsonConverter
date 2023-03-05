@@ -135,7 +135,8 @@ public class JsonConverter {
 
             if (c == DOUBLE_QUOTES) {
                 Pair pair;
-                int positionEnd = json.indexOf(DOUBLE_QUOTES, positionStart+1);
+                positionStart++;
+                int positionEnd = json.indexOf(DOUBLE_QUOTES, positionStart);
                 String fieldName = json.substring(positionStart, positionEnd);
                 positionStart = positionEnd + 2;
                 Optional<Field> currentField = Arrays.stream(fields)
