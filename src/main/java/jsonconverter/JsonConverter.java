@@ -143,12 +143,7 @@ public class JsonConverter {
                         .filter(field -> fieldName.equals(field.getName()))
                         .findFirst();
                 if(currentField.isPresent()){
-                    if(Iterable.class.isAssignableFrom(currentField.get().getType())){
-//                        Type subClsGeneric = currentField.get().getGenericType();
-//                        subClsGeneric
-//                        pair = parse(json, positionStart, subClsGeneric);
-
-                        //work code:
+                    if(Collection.class.isAssignableFrom(currentField.get().getType())){
                         Class<?> subCls = (Class<?>) ((ParameterizedType) currentField.get().getGenericType()).getActualTypeArguments()[0];
                         pair = parseJson(json, positionStart, subCls);
                     } else{
@@ -331,21 +326,14 @@ public class JsonConverter {
     private String createJsonFromBoolean(Boolean value){
         return value.toString();
     }
-    private String createJsonFromArrayOrList(Object value, StringBuilder jsonValueBuilder)
-            throws IllegalAccessException {
-        Iterable containedValues =(Iterable) value;
-        jsonValueBuilder.append(SQUARE_OPEN_BRACKETS);
-        for (Object containedValue : containedValues) {
-            createJsonValue(containedValue, jsonValueBuilder);
-            jsonValueBuilder.append(COMMA);
-        }
-        jsonValueBuilder.deleteCharAt(jsonValueBuilder.length() - 1);
-        jsonValueBuilder.append(SQUARE_CLOSE_BRACKETS);
-        return value.toString();
-    }
 
     private void createJsonValue(Object obj, StringBuilder jsonValueBuilder) throws IllegalAccessException {
+        if (obj == null) {
+            jsonValueBuilder.append("null");
+            return;
+        }
         Class<?> cls = obj.getClass();
+
         if(isString(cls)){
             jsonValueBuilder.append(createJsonFromString((String)obj));
         }else if(isCharacter(cls)){
@@ -354,8 +342,6 @@ public class JsonConverter {
             jsonValueBuilder.append(createJsonFromBoolean((Boolean) obj));
         } else if(isNumber(cls)){
             jsonValueBuilder.append(createJsonFromNum((Number) obj));
-        }else if (cls.isArray() || List.class.isAssignableFrom(cls)) {
-            createJsonFromArrayOrList(obj, jsonValueBuilder);
         }else if (cls.isArray()){
             Object[] containedValues = (Object[])obj;
 
@@ -385,15 +371,16 @@ public class JsonConverter {
             Field[] fields = getFields(obj.getClass());
             for(Field field : fields){
                 if(field.trySetAccessible()){
+                    if(field.get(obj) == null){
+                        continue;
+                    }
                     jsonValueBuilder.append(prepareFieldName(field));
 
                     createJsonValue(field.get(obj), jsonValueBuilder);
                     jsonValueBuilder.append(COMMA);
                 }
             }
-            //удалить последнюю запятую длина-1
             jsonValueBuilder.deleteCharAt(jsonValueBuilder.length() - 1);
-
             jsonValueBuilder.append(CURLY_CLOSE_BRACKETS);
         }
     }
@@ -433,12 +420,8 @@ public class JsonConverter {
         return Character.class.isAssignableFrom(type)
                 || char.class.isAssignableFrom(type);
     }
-    private boolean isArrayOrIterable(Class<?> type){
-        return type.isArray() || Iterable.class.isAssignableFrom(type);
-    }
 
     private String prepareFieldName(Field field){
-
         return "\"" + field.getName() + "\":";
     }
 }
