@@ -174,8 +174,7 @@ public class JsonConverter {
                 }
             }
         });
-        return new Pair(positionStart, object);
-//        return new Pair(++positionStart, object);
+        return new Pair(++positionStart, object);
     }
 
     private Pair parseJsonArray(String json, int position, Type type)
