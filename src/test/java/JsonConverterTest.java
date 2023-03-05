@@ -1,3 +1,5 @@
+import jsonconverter.GenericListType;
+import jsonconverter.JsonConverter;
 import model.Animal;
 import model.User;
 import org.junit.jupiter.api.Nested;
@@ -7,7 +9,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonConverterTest {
