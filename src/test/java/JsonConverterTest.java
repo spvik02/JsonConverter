@@ -1,9 +1,7 @@
-import com.google.gson.Gson;
 import jsonconverter.GenericListType;
 import jsonconverter.JsonConverter;
 import model.Animal;
 import model.User;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -520,7 +518,8 @@ class JsonConverterTest {
         }
 
         @Test
-        void checkFromJsonShouldReturnUserValue(){
+        void checkFromJsonShouldReturnJsonForUser(){
+            String expectedJson = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"pets\":[{\"name\":\"Caiery\",\"age\":3},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Arairie\",\"age\":9}],\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
             String actualJson;
             Animal animal1 = new Animal("Arairie", 9);
             Animal animal2 = new Animal("Bashi", 4);
@@ -530,8 +529,7 @@ class JsonConverterTest {
             User user = new User("Dastin", 29, 2000, pets, animals,
                     true, true, 'a', 'C');
             try {
-                Gson gson = new Gson();
-                String expectedJson = gson.toJson(user);
+
                 actualJson = jsonConverter.toJson(user);
                 assertThat(actualJson).isEqualTo(expectedJson);
             } catch (Exception e) {
@@ -540,7 +538,8 @@ class JsonConverterTest {
         }
 
         @Test
-        void checkFromJsonShouldReturnJsonUserWithNullPets(){
+        void checkFromJsonShouldReturnJsonForUserWithNullPets(){
+            String expectedJson = "{\"name\":\"Dastin\",\"age\":29,\"year\":2000,\"animals\":[{\"name\":\"Arairie\",\"age\":9},{\"name\":\"Bashi\",\"age\":4},{\"name\":\"Caiery\",\"age\":3}],\"isHappy\":true,\"isMarried\":true,\"category\":\"a\",\"categoryWrapper\":\"C\"}";
             String actualJson;
             Animal animal1 = new Animal("Arairie", 9);
             Animal animal2 = new Animal("Bashi", 4);
@@ -549,8 +548,6 @@ class JsonConverterTest {
             User user = new User("Dastin", 29, 2000, null, animals,
                     true, true, 'a', 'C');
             try {
-                Gson gson = new Gson();
-                String expectedJson = gson.toJson(user);
                 actualJson = jsonConverter.toJson(user);
                 assertThat(actualJson).isEqualTo(expectedJson);
             } catch (Exception e) {
